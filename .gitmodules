@@ -1,0 +1,15 @@
+[submodule "apps-hub"]
+	path = apps-hub
+	url = git@github.com:thiago-ms/apps-hub.git
+[submodule "notes"]
+	path = notes
+	url = git@github.com:thiago-ms/notes.git
+[submodule "site-blocker"]
+	path = site-blocker
+	url = git@github.com:thiago-ms/site-blocker.git
+[submodule "utilities"]
+	path = utilities
+	url = git@github.com:thiago-ms/utilities.git
+[submodule "watch-up"]
+	path = watch-up
+	url = git@github.com:thiago-ms/watch-up.git

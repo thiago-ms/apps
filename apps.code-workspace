@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "site-blocker"
+		},
+		{
+			"path": "utilities"
+		},
+		{
+			"path": "watch-up"
+		}
+	],
+	"settings": {}
+}
