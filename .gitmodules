@@ -13,3 +13,6 @@
 [submodule "watch-up"]
 	path = watch-up
 	url = git@github.com:thiago-ms/watch-up.git
+[submodule "gastos"]
+	path = gastos
+	url = git@github.com:thiago-ms/gastos.git
