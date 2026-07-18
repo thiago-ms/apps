@@ -40,6 +40,40 @@ fluxos, sempre entregando em `dist/`:
 - Trocar debug↔release no mesmo device com assinaturas diferentes dá
   `INSTALL_FAILED_UPDATE_INCOMPATIBLE`; o `adb.sh` desinstala+reinstala sozinho.
 
+## Ao finalizar alterações (rotina de entrega — sempre executar)
+
+**Sempre que terminar as alterações pedidas em um app** (depois de compilar/testar
+e o código estar verde), executar esta rotina no diretório do app alterado, sem
+precisar o usuário pedir:
+
+1. **Bump de versão** — subir `versionName` **e** `versionCode` em
+   `app/build.gradle.kts` (nunca sobrescrever a mesma versão; ver "Versionamento é
+   manual" abaixo). Este passo é o que torna o APK um entregável.
+2. **Gerar debug + release** — `make dist-all` (ou `make dist` + `make dist-release`).
+   Saem em `dist/<app>-<versão>-debug.apk` e `dist/<app>-<versão>-release.apk`.
+   Fazer smoke-test do release quando possível (R8 pode quebrar só em runtime).
+3. **Copiar o release para o hub raiz** — copiar `dist/<app>-<versão>-release.apk`
+   para o `.dist/` da raiz de `other-projects` (`cp dist/<app>-<versão>-release.apk
+   ../.dist/`), que é o hub agregador servido pelo `server.sh` da raiz (lista os
+   releases de todos os apps). Não apagar os releases anteriores sem perguntar.
+4. **Avisar o usuário** que as duas versões foram geradas em `dist/` e lembrar as
+   **duas formas de instalar no aparelho**:
+   - **Via server (baixar pelo celular):** rodar `./server.sh` no diretório do app
+     (sobe um `http.server` na porta 8000 servindo `dist/`) e abrir no navegador do
+     celular a URL que o script imprime (`http://<ip-do-pc>:8000/`) — PC e celular na
+     mesma rede. Baixar o APK desejado e instalar.
+   - **Via USB (aparelho conectado no PC):** `./adb.sh build-install` (debug) ou
+     `./adb.sh build-install-release` (release) — gera e instala direto. Na 1ª vez,
+     autorizar o device com `./adb.sh authorize` (aceitar o prompt no celular) e
+     conferir com `./adb.sh devices`. O `adb.sh` roda o adb via Docker e
+     desinstala+reinstala sozinho se a assinatura divergir.
+
+Se o app não tiver `adb.sh`/`server.sh`, mencionar só os caminhos disponíveis.
+
+Se o item entregue veio de um backlog/spec do app (ex.: `specs/backlog-*.md`),
+**atualizar esse arquivo**: marcar o item como feito e registrar a versão na tabela
+de "Histórico de entregas" (item → `versionName`).
+
 ## Regras de trabalho
 
 - **Nunca apagar artefatos (`dist/`, `build/`, APKs) sem perguntar antes**, mesmo
