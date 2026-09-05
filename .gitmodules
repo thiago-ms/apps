@@ -19,3 +19,6 @@
 [submodule "myapps"]
 	path = myapps
 	url = git@github.com:thiago-ms/myapps.git
+[submodule "people"]
+	path = people
+	url = git@github.com:thiago-ms/people.git
