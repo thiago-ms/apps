@@ -16,3 +16,6 @@
 [submodule "gastos"]
 	path = gastos
 	url = git@github.com:thiago-ms/gastos.git
+[submodule "myapps"]
+	path = myapps
+	url = git@github.com:thiago-ms/myapps.git
