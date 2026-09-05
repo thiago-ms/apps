@@ -22,3 +22,6 @@
 [submodule "people"]
 	path = people
 	url = git@github.com:thiago-ms/people.git
+[submodule "wpp-chat"]
+	path = wpp-chat
+	url = git@github.com:thiago-ms/wpp-chat.git
