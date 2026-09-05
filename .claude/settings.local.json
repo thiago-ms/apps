@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(android-batch)",
+      "Skill(android-batch:*)",
+      "Skill(android-new-app)",
+      "Skill(android-new-app:*)"
+    ]
+  }
+}

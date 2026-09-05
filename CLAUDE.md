@@ -2,6 +2,35 @@
 
 Diretório de apps Android pessoais (`watch-up`, `utilities`, `site-blocker`, ...).
 
+## Skills
+
+Os rituais mecânicos desta pasta são skills em `.claude/skills/` (índice e
+convenções em [.claude/skills/README.md](.claude/skills/README.md)):
+
+| Skill | Quando |
+|---|---|
+| **`/android-batch`** | **várias demandas de uma vez** — o caminho normal quando o pedido tem mais de um item |
+| `/android-new-app` | app novo a partir do `.sample/` |
+| `/android-new-feature` | módulo `:feature:<x>` + wiring de navegação |
+| `/android-new-core` | módulo `:core:<x>` (Room, prefs, ...) |
+| `/android-release` | roll-out de versão (o ritual da seção "Ao finalizar alterações") |
+| `/android-backlog` | criar/manter `specs/backlog-*.md` |
+| `/android-audit` | relatório read-only de drift na frota |
+
+**Pedido com mais de um item vai para o `/android-batch`**, que faz a triagem, fila no
+backlog, executa (paralelo entre apps, builds serializados) e entrega app por app. Ele usa
+os subagentes `android-scout` e `android-implementer` em [.claude/agents/](.claude/agents/).
+Item único e claro: chame a skill específica direto.
+
+Duas coisas a saber:
+
+- **Abrir a sessão na raiz desta pasta.** Skill de projeto é descoberta a partir da raiz
+  do projeto da sessão, e cada app é um repo git próprio — sessão aberta dentro de um
+  submódulo pode não listar as `android-*`. Todas operam em caminhos `<app>/...`
+  relativos à raiz de qualquer forma.
+- **App Android novo aqui é `/android-new-app`, não `/project-starter`** (esse faz
+  projeto Node/TypeScript).
+
 ## Esqueleto para novos apps: `.sample/`
 
 `.sample/` é o **template oficial** para criar um app Android novo nesta pasta.
@@ -44,7 +73,13 @@ fluxos, sempre entregando em `dist/`:
 
 **Sempre que terminar as alterações pedidas em um app** (depois de compilar/testar
 e o código estar verde), executar esta rotina no diretório do app alterado, sem
-precisar o usuário pedir:
+precisar o usuário pedir.
+
+> **A rotina completa é a skill [`/android-release`](.claude/skills/android-release/SKILL.md)**
+> — ela é a autoridade: 10 passos com asserções, gate de verificação no aparelho, tag,
+> commit do superprojeto e sync do backlog. Use a skill quando ela estiver disponível.
+> O resumo abaixo existe para quando a sessão foi aberta dentro de um submódulo e a
+> skill não aparece na lista; se os dois divergirem, a skill vale.
 
 1. **Bump de versão** — subir `versionName` **e** `versionCode` em
    `app/build.gradle.kts` (nunca sobrescrever a mesma versão; ver "Versionamento é
@@ -52,11 +87,16 @@ precisar o usuário pedir:
 2. **Gerar debug + release** — `make dist-all` (ou `make dist` + `make dist-release`).
    Saem em `dist/<app>-<versão>-debug.apk` e `dist/<app>-<versão>-release.apk`.
    Fazer smoke-test do release quando possível (R8 pode quebrar só em runtime).
-3. **Copiar o release para o hub raiz** — copiar `dist/<app>-<versão>-release.apk`
-   para o `.dist/` da raiz de `other-projects` (`cp dist/<app>-<versão>-release.apk
-   ../.dist/`), que é o hub agregador servido pelo `server.sh` da raiz (lista os
-   releases de todos os apps). Não apagar os releases anteriores sem perguntar.
-4. **Avisar o usuário** que as duas versões foram geradas em `dist/` e lembrar as
+3. **Copiar o release para os dois hubs** — `dist/<app>-<versão>-release.apk` vai para o
+   `.dist/` do próprio app (versionado no submódulo) **e** para o `.dist/` da raiz de
+   `other-projects` (`cp dist/<app>-<versão>-release.apk ../.dist/`), que é o hub
+   agregador servido pelo `server.sh` da raiz. Cada hub guarda exatamente um APK por
+   app; **não apagar o anterior sem perguntar**.
+4. **Commit e tag** — no submódulo: commit `Release <versão>` + tag bare (`1.16`, sem
+   `v`). No superprojeto: commit `App <rootProject.name> <versão>` com o ponteiro do
+   submódulo e o `.dist/`. **Submódulo antes do superprojeto**, senão o ponteiro fica
+   pendurado.
+5. **Avisar o usuário** que as duas versões foram geradas em `dist/` e lembrar as
    **duas formas de instalar no aparelho**:
    - **Via server (baixar pelo celular):** rodar `./server.sh` no diretório do app
      (sobe um `http.server` na porta 8000 servindo `dist/`) e abrir no navegador do
